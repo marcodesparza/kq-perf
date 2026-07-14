@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-inherit="web.ListRenderer.Rows" t-inherit-mode="extension">
+        <xpath expr="//t[@t-foreach='list.records']" position="attributes">
+            <attribute name="t-foreach">getVirtualRecords(list)</attribute>
+        </xpath>
+        <xpath expr="//t[@t-foreach='getVirtualRecords(list)']" position="before">
+            <tr t-if="shouldVirtualize(list) and getVirtualSpacerTop(list) > 0"
+                class="kq_virtual_spacer">
+                <td t-att-colspan="nbCols"
+                    t-attf-style="height: {{getVirtualSpacerTop(list)}}px; padding: 0; border: 0;"/>
+            </tr>
+        </xpath>
+        <xpath expr="//t[@t-foreach='getVirtualRecords(list)']" position="after">
+            <tr t-if="shouldVirtualize(list) and getVirtualSpacerBottom(list) > 0"
+                class="kq_virtual_spacer">
+                <td t-att-colspan="nbCols"
+                    t-attf-style="height: {{getVirtualSpacerBottom(list)}}px; padding: 0; border: 0;"/>
+            </tr>
+        </xpath>
+    </t>
+
+</templates>

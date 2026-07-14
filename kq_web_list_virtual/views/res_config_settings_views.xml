@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.web.list.virtual</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="Web List Virtual Rows"
+                     name="kq_web_list_virtual"
+                     logo="/base/static/description/settings.png">
+                    <block title="Vistas de lista"
+                           name="list_virtual_threshold_setting">
+                        <setting help="Cantidad de registros cargados a partir de la cual las listas solo renderizan las filas visibles (scroll virtual). Usa 0 para desactivar.">
+                            <field name="list_virtual_threshold"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

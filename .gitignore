@@ -1,0 +1,74 @@
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Claude / AI assistants
+.claude/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Odoo
+*.log
+*.pid
+*.seed
+*.cover
+*.pot
+*.mo
+.session/
+
+# Entornos virtuales
+.env
+.venv/
+venv/
+ENV/
+env/
+
+# Herramientas de testing/cobertura
+.coverage
+.tox/
+.pytest_cache/
+.mypy_cache/
+
+# Node (por si hay tooling frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de backup o conversaciones
+*.bak
+*.orig
+*.txt
