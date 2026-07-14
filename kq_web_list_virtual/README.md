@@ -4,6 +4,8 @@
 [![License](https://img.shields.io/badge/License-LGPL--3-00A4DE?logo=gnu)](LICENSE)
 [![Version](https://img.shields.io/badge/version-19.0.1.0.0-blue)](#)
 
+Parte de [kq-perf](../README.md), un proyecto de **marcodesparza** para mejorar el rendimiento general de Odoo.
+
 Virtualiza las filas de las vistas de lista del backend de Odoo 19. Cuando una lista carga más registros que el umbral configurado, solo se renderizan en el DOM las filas visibles en pantalla (más un margen de seguridad). Dos filas espaciadoras mantienen la altura total de la tabla, por lo que la barra de scroll se comporta con normalidad.
 
 > [!IMPORTANT]
