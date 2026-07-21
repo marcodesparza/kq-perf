@@ -12,6 +12,7 @@ Colección de módulos de Odoo creada por **marcodesparza** para mejorar el rend
 
 | Módulo | Descripción |
 |--------|-------------|
+| [`kq_export_async`](kq_export_async/) | Exportaciones masivas en segundo plano: cuando un export supera un umbral configurable de registros, se encola un job que un cron procesa por lotes y entrega como adjunto descargable con notificación al usuario. |
 | [`kq_web_list_virtual`](kq_web_list_virtual/) | Virtualiza las filas de las vistas lista del backend para que cargar decenas de miles de registros no congele el navegador. |
 
 ## Filosofía
