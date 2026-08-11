@@ -130,6 +130,11 @@ EOF
   contra el core, delegación del agrupado, kill-switch, límite
   `max_records`, y ausencia de temp files huérfanos (éxito y error).
 
+Corrida completa con la imagen OCA CI (skill `odoo_test_kq` del proyecto):
+
+```bash
+python3 ~/.claude/skills/odoo_test_kq/scripts/odoo_ci.py custom-addons/kq_export_stream
+```
 
 ## Módulos relacionados
 

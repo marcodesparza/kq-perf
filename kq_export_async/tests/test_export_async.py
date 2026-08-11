@@ -1,11 +1,14 @@
 # Part of kq_export_async. See LICENSE file for full copyright and licensing details.
 import io
 import json
+from contextlib import contextmanager
 from unittest.mock import patch
 
 from odoo import Command, http
+from odoo.exceptions import UserError
 from odoo.tests import common, tagged
 
+from odoo.addons.kq_export_async.controllers.export import AsyncExportMixin
 from odoo.addons.web.controllers.export import CSVExport
 
 
@@ -136,6 +139,82 @@ class TestExportJobProcessing(ExportJobCase):
         self.env['kq.export.job']._cron_process()
         self.assertEqual(job.state, 'done')
 
+    def test_cron_triggers_itself_when_pending_remain(self):
+        self.env['ir.config_parameter'].sudo().set_param('kq_export_async.jobs_per_run', '1')
+        job_done = self._make_job()
+        job_pending = self._make_job()
+        # Parcheamos el método a nivel clase; en un recordset es read-only.
+        IrCron = self.env['ir.cron'].__class__
+        with patch.object(IrCron, '_trigger') as mock_trigger:
+            self.env['kq.export.job']._cron_process()
+        self.assertEqual(job_done.state, 'done')
+        self.assertEqual(job_pending.state, 'pending')
+        mock_trigger.assert_called_once()
+
+    def test_requeue_stale_running(self):
+        job = self._make_job()
+        job.write({'state': 'running'})
+        self.env.flush_all()
+        self.env.cr.execute(
+            "UPDATE kq_export_job SET write_date = now() - interval '40 minutes' WHERE id = %s",
+            [job.id],
+        )
+        job.invalidate_recordset()
+
+        self.env['kq.export.job']._requeue_stale_running()
+
+        self.assertEqual(job.state, 'pending')
+        self.assertTrue(job.error_message)
+
+    def test_gc_disabled_when_retention_zero(self):
+        self.env['ir.config_parameter'].sudo().set_param('kq_export_async.retention_days', '0')
+        job = self._make_job()
+        job._process_one()
+        attachment = job.attachment_id
+        self.env.flush_all()
+        self.env.cr.execute(
+            "UPDATE kq_export_job SET write_date = now() - interval '30 days' WHERE id = %s",
+            [job.id],
+        )
+        job.invalidate_recordset()
+
+        self.env['kq.export.job']._gc_expired()
+
+        self.assertTrue(job.exists())
+        self.assertTrue(attachment.exists())
+
+    def test_action_download(self):
+        job = self._make_job()
+        job._process_one()
+        action = job.action_download()
+        self.assertEqual(action['type'], 'ir.actions.act_url')
+        self.assertIn(str(job.attachment_id.id), action['url'])
+
+    def test_action_download_without_attachment_raises(self):
+        job = self._make_job()
+        with self.assertRaises(UserError):
+            job.action_download()
+
+    def test_failed_notification(self):
+        job = self._make_job(fields=[{'name': 'no_existe', 'label': 'Nope'}])
+        job._process_one()
+        self.assertEqual(job.state, 'error')
+        messages = self.env['mail.message'].search([
+            ('model', '=', 'kq.export.job'),
+            ('res_id', '=', job.id),
+        ])
+        self.assertTrue(messages)
+        body = ' '.join(messages.mapped(lambda m: str(m.body)))
+        self.assertIn('falló', body)
+        self.assertIn(job.error_message, body)
+
+    def test_process_one_does_not_commit_in_tests(self):
+        with patch.object(self.env.cr, 'commit') as mock_commit:
+            job = self._make_job()
+            job._process_one()
+        self.assertEqual(job.state, 'done')
+        mock_commit.assert_not_called()
+
 
 @tagged('post_install', '-at_install')
 class TestExportAsyncRoute(common.HttpCase):
@@ -223,3 +302,72 @@ class TestExportAsyncRoute(common.HttpCase):
         download = self.url_open(f'/web/content/{job.attachment_id.id}?download=true')
         self.assertEqual(download.status_code, 200)
         self.assertEqual(download.content, self._expected_csv())
+
+
+@tagged('post_install', '-at_install')
+class TestAsyncExportMixin(common.TransactionCase):
+    """Pruebas unitarias del mixin que decide si un export se encola."""
+
+    @contextmanager
+    def _mock_request(self):
+        """Crea un request mínimo mockeado para el mixin.
+
+        ``odoo.http.request`` es un ``LocalProxy`` que en un ``TransactionCase``
+        no está ligado; reemplazamos directamente el objeto importado en el
+        módulo del controller.
+        """
+        from odoo.addons.kq_export_async.controllers import export as ctrl
+        mock_request = type('Request', (), {'env': self.env})()
+        original = ctrl.request
+        ctrl.request = mock_request
+        try:
+            yield mock_request
+        finally:
+            ctrl.request = original
+
+    def test_record_count_with_ids(self):
+        mixin = AsyncExportMixin()
+        mixin._kq_export_format = 'csv'
+        partners = self.env['res.partner'].create([
+            {'name': 'Mixin A'},
+            {'name': 'Mixin B'},
+        ])
+        params = {'model': 'res.partner', 'ids': partners.ids, 'context': {}}
+        with self._mock_request():
+            self.assertEqual(mixin._async_record_count(params), 2)
+
+    def test_record_count_with_domain(self):
+        mixin = AsyncExportMixin()
+        mixin._kq_export_format = 'csv'
+        self.env['res.partner'].create([
+            {'name': 'Mixin Domain A'},
+            {'name': 'Other'},
+        ])
+        domain = [('name', 'like', 'Mixin Domain%')]
+        params = {'model': 'res.partner', 'ids': False, 'domain': domain, 'context': {}}
+        with self._mock_request():
+            self.assertEqual(mixin._async_record_count(params), 1)
+
+    def test_threshold_zero_disables_async(self):
+        mixin = AsyncExportMixin()
+
+        def _fake_get_param(key, default=None):
+            return '0' if key == 'kq_export_async.threshold' else default
+
+        with self._mock_request():
+            with patch.object(
+                self.env['ir.config_parameter'].__class__, 'get_param', side_effect=_fake_get_param
+            ):
+                self.assertEqual(mixin._async_threshold(), 0)
+
+    def test_threshold_invalid_falls_back_to_zero(self):
+        mixin = AsyncExportMixin()
+
+        def _fake_get_param(key, default=None):
+            return 'invalid' if key == 'kq_export_async.threshold' else default
+
+        with self._mock_request():
+            with patch.object(
+                self.env['ir.config_parameter'].__class__, 'get_param', side_effect=_fake_get_param
+            ):
+                self.assertEqual(mixin._async_threshold(), 0)

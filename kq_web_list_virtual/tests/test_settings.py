@@ -32,3 +32,14 @@ class TestListVirtualThreshold(TransactionCase):
             self.env["res.config.settings"].create(
                 {"list_virtual_threshold": -1}
             )
+
+    def test_threshold_default_value(self):
+        settings = self.env["res.config.settings"].create({})
+        self.assertEqual(settings.list_virtual_threshold, 200)
+
+    def test_threshold_write_negative_is_rejected(self):
+        settings = self.env["res.config.settings"].create(
+            {"list_virtual_threshold": 100}
+        )
+        with self.assertRaises(ValidationError):
+            settings.write({"list_virtual_threshold": -5})

@@ -21,6 +21,26 @@ Colección de módulos de Odoo creada por **marcodesparza** para mejorar el rend
 - Sin alterar el comportamiento estándar de Odoo donde no es necesario.
 - Código limpio, documentado y con tests.
 
+## Desarrollo guiado por tests (TDD)
+
+Cada módulo incluye tests de Odoo en su carpeta `tests/`. Para ejecutarlos localmente:
+
+```bash
+# Opción 1: script incluido
+ODOO_BIN=/ruta/a/odoo-bin DATABASE=mi_base ADDONS_PATH=/ruta/a/addons ./scripts/run_tests.sh
+
+# Opción 2: comando directo
+./odoo-bin -u kq_export_async,kq_web_list_virtual -d mi_base \
+    --test-enable --stop-after-init --log-level=test
+```
+
+Para correr un solo módulo o test, usa `--test-tags`:
+
+```bash
+./odoo-bin -u kq_export_async -d mi_base --test-enable --stop-after-init \
+    --test-tags /kq_export_async
+```
+
 ## Autor
 
 **marcodesparza**
