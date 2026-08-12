@@ -168,10 +168,3 @@ openpyxl), manejo de errores + reintento, notificaciones con enlace,
 retención/GC de jobs vencidos, cron, y end-to-end HTTP: umbral deshabilitado,
 por debajo del umbral (stream normal), por encima (encola + procesa +
 descarga vía `/web/content`).
-
-Corrida completa con la imagen OCA CI (skill `odoo_test_kq` del proyecto):
-
-```bash
-python3 ~/.claude/skills/odoo_test_kq/scripts/odoo_ci.py custom-addons/kq_export_async \
-    --include kq_export_stream,kq_export_async
-```

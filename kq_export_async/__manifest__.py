@@ -34,6 +34,7 @@ También reutiliza ``kq_export_stream.batch_size`` para el tamaño de lote.
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
+        'data/ir_config_parameter_data.xml',
         'data/ir_cron.xml',
         'views/export_job_views.xml',
     ],

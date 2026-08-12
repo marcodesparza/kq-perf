@@ -30,15 +30,20 @@ class AsyncExportMixin:
             value = 0
         return max(0, value)
 
-    def _async_record_count(self, params):
+    def _async_record_count(self, params, threshold):
         Model = request.env[params['model']].with_context(**(params.get('context') or {}))
         ids = params.get('ids')
-        return len(ids) if ids else Model.search_count(params.get('domain') or [])
+        if ids:
+            return len(ids)
+        # Contar solo hasta el umbral. En dominios muy amplios un search_count
+        # completo puede exceder el tiempo del worker HTTP y matar el request
+        # antes de que se alcance a encolar el job asíncrono.
+        return Model.search_count(params.get('domain') or [], limit=threshold)
 
     def _stream_base(self, params):
         threshold = self._async_threshold()
         if threshold:
-            count = self._async_record_count(params)
+            count = self._async_record_count(params, threshold)
             if count >= threshold:
                 self._async_enqueue(params, count, threshold)  # lanza UserError, no retorna
         return super()._stream_base(params)

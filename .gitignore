@@ -15,9 +15,6 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Claude / AI assistants
-.claude/
-
 # Python
 __pycache__/
 *.py[cod]

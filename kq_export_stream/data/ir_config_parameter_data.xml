@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+    <!--
+        Parámetros de sistema publicados en el manifest. Se crean al instalar
+        para que aparezcan en Ajustes > Técnico > Parámetros > Parámetros del
+        sistema, pero el usuario puede modificarlos sin que se sobreescriban
+        al actualizar el módulo.
+    -->
+    <record id="param_enabled" model="ir.config_parameter">
+        <field name="key">kq_export_stream.enabled</field>
+        <field name="value">True</field>
+    </record>
+    <record id="param_batch_size" model="ir.config_parameter">
+        <field name="key">kq_export_stream.batch_size</field>
+        <field name="value">1000</field>
+    </record>
+    <record id="param_max_records" model="ir.config_parameter">
+        <field name="key">kq_export_stream.max_records</field>
+        <field name="value">0</field>
+    </record>
+</odoo>

@@ -23,6 +23,9 @@ esta fase.
     'author': 'Origami Soft',
     'license': 'LGPL-3',
     'depends': ['web'],
+    'data': [
+        'data/ir_config_parameter_data.xml',
+    ],
     'installable': True,
     'application': False,
     'auto_install': False,
