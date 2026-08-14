@@ -334,7 +334,7 @@ class TestAsyncExportMixin(common.TransactionCase):
         ])
         params = {'model': 'res.partner', 'ids': partners.ids, 'context': {}}
         with self._mock_request():
-            self.assertEqual(mixin._async_record_count(params), 2)
+            self.assertEqual(mixin._async_record_count(params, 10), 2)
 
     def test_record_count_with_domain(self):
         mixin = AsyncExportMixin()
@@ -346,7 +346,7 @@ class TestAsyncExportMixin(common.TransactionCase):
         domain = [('name', 'like', 'Mixin Domain%')]
         params = {'model': 'res.partner', 'ids': False, 'domain': domain, 'context': {}}
         with self._mock_request():
-            self.assertEqual(mixin._async_record_count(params), 1)
+            self.assertEqual(mixin._async_record_count(params, 10), 1)
 
     def test_threshold_zero_disables_async(self):
         mixin = AsyncExportMixin()
