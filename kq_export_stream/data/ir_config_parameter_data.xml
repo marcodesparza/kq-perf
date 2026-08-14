@@ -2,20 +2,24 @@
 <odoo noupdate="1">
     <!--
         Parámetros de sistema publicados en el manifest. Se crean al instalar
-        para que aparezcan en Ajustes > Técnico > Parámetros > Parámetros del
-        sistema, pero el usuario puede modificarlos sin que se sobreescriban
-        al actualizar el módulo.
+        (solo si no existen) para que aparezcan en Ajustes > Técnico > Parámetros
+        > Parámetros del sistema. Al actualizar el módulo no se sobrescriben
+        los valores que haya modificado el usuario.
+
+        Se usa <function model="ir.config_parameter" name="set_param"> en lugar
+        de <record> para evitar errores de clave duplicada cuando el parámetro
+        ya existe en la base de datos sin el xml_id correspondiente.
     -->
-    <record id="param_enabled" model="ir.config_parameter">
-        <field name="key">kq_export_stream.enabled</field>
-        <field name="value">True</field>
-    </record>
-    <record id="param_batch_size" model="ir.config_parameter">
-        <field name="key">kq_export_stream.batch_size</field>
-        <field name="value">1000</field>
-    </record>
-    <record id="param_max_records" model="ir.config_parameter">
-        <field name="key">kq_export_stream.max_records</field>
-        <field name="value">0</field>
-    </record>
+    <function model="ir.config_parameter" name="set_param">
+        <value>kq_export_stream.enabled</value>
+        <value>True</value>
+    </function>
+    <function model="ir.config_parameter" name="set_param">
+        <value>kq_export_stream.batch_size</value>
+        <value>1000</value>
+    </function>
+    <function model="ir.config_parameter" name="set_param">
+        <value>kq_export_stream.max_records</value>
+        <value>0</value>
+    </function>
 </odoo>

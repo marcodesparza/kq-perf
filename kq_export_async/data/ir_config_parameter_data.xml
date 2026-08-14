@@ -2,24 +2,28 @@
 <odoo noupdate="1">
     <!--
         Parámetros de sistema publicados en el manifest. Se crean al instalar
-        para que aparezcan en Ajustes > Técnico > Parámetros > Parámetros del
-        sistema, pero el usuario puede modificarlos sin que se sobreescriban
-        al actualizar el módulo.
+        (solo si no existen) para que aparezcan en Ajustes > Técnico > Parámetros
+        > Parámetros del sistema. Al actualizar el módulo no se sobrescriben
+        los valores que haya modificado el usuario.
+
+        Se usa <function model="ir.config_parameter" name="set_param"> en lugar
+        de <record> para evitar errores de clave duplicada cuando el parámetro
+        ya existe en la base de datos sin el xml_id correspondiente.
     -->
-    <record id="param_threshold" model="ir.config_parameter">
-        <field name="key">kq_export_async.threshold</field>
-        <field name="value">0</field>
-    </record>
-    <record id="param_jobs_per_run" model="ir.config_parameter">
-        <field name="key">kq_export_async.jobs_per_run</field>
-        <field name="value">2</field>
-    </record>
-    <record id="param_retention_days" model="ir.config_parameter">
-        <field name="key">kq_export_async.retention_days</field>
-        <field name="value">7</field>
-    </record>
-    <record id="param_stale_running_minutes" model="ir.config_parameter">
-        <field name="key">kq_export_async.stale_running_minutes</field>
-        <field name="value">30</field>
-    </record>
+    <function model="ir.config_parameter" name="set_param">
+        <value>kq_export_async.threshold</value>
+        <value>0</value>
+    </function>
+    <function model="ir.config_parameter" name="set_param">
+        <value>kq_export_async.jobs_per_run</value>
+        <value>2</value>
+    </function>
+    <function model="ir.config_parameter" name="set_param">
+        <value>kq_export_async.retention_days</value>
+        <value>7</value>
+    </function>
+    <function model="ir.config_parameter" name="set_param">
+        <value>kq_export_async.stale_running_minutes</value>
+        <value>30</value>
+    </function>
 </odoo>

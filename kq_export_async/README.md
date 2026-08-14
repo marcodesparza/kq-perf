@@ -159,12 +159,34 @@ EOF
 
 ## Tests
 
-```
---test-tags /kq_export_async
+Los tests viven en `tests/test_export_async.py`. Para ejecutarlos:
+
+```bash
+./odoo-bin -u kq_export_async -d <tu_base_de_datos> --test-enable --stop-after-init --log-level=test
 ```
 
-Procesamiento CSV (fidelidad byte a byte contra el core) y XLSX (valores vía
-openpyxl), manejo de errores + reintento, notificaciones con enlace,
-retención/GC de jobs vencidos, cron, y end-to-end HTTP: umbral deshabilitado,
-por debajo del umbral (stream normal), por encima (encola + procesa +
-descarga vía `/web/content`).
+Filtrar solo este módulo:
+
+```bash
+./odoo-bin -u kq_export_async -d <tu_base_de_datos> --test-enable --stop-after-init \
+    --test-tags /kq_export_async
+```
+
+Casos cubiertos:
+
+- Procesamiento de jobs en CSV y XLSX.
+- Marcado de errores y reintentos (`action_retry`).
+- Limpieza de jobs vencidos (`_gc_expired`).
+- Reencolado de jobs huérfanos en `running` (`_requeue_stale_running`).
+- Notificaciones por inbox en caso de éxito y fallo.
+- Intercepción del endpoint `/web/export/csv` cuando se supera el umbral.
+- Descarga del adjunto generado.
+- Comportamiento del cron con límite de jobs por corrida.
+- Lógica del mixin del controller (conteo por `ids` y por `domain`).
+
+Corrida completa con la imagen OCA CI (skill `odoo_test_kq` del proyecto):
+
+```bash
+python3 ~/.claude/skills/odoo_test_kq/scripts/odoo_ci.py custom-addons/kq_export_async \
+    --include kq_export_stream,kq_export_async
+```

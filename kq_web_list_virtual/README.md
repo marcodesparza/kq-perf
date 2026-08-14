@@ -91,8 +91,11 @@ El módulo incluye tests de Python para validar la configuración del umbral:
 Casos cubiertos:
 
 - El umbral se almacena correctamente como parámetro de configuración.
+- El valor por defecto es `200`.
 - El valor `0` persiste y desactiva la virtualización.
-- No se permiten valores negativos.
+- No se permiten valores negativos ni al crear ni al actualizar ajustes.
+- `session_info` expone el umbral al navegador.
+- Un valor inválido en `ir.config_parameter` cae al valor por defecto (`200`).
 
 ## Notas
 
